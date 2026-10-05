@@ -53,9 +53,11 @@ app.get('/api/carpetas', async (req, res) => {
       };
     });
     return res.json({ success: true, carpetas: list, motor: 'MySQL' });
-  } else {
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
     const list = sqliteDb.getCarpetas();
     return res.json({ success: true, carpetas: list, motor: 'SQLite' });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error, carpetas: [] });
   }
 });
 
@@ -65,16 +67,26 @@ app.post('/api/carpetas', async (req, res) => {
   const nombreVal = nombre && nombre.trim() !== '' ? nombre.trim() : 'Nueva Carpeta';
   const descVal = descripcion ? descripcion.trim() : '';
 
-  const sqliteRecord = sqliteDb.createCarpeta({ nombre: nombreVal, descripcion: descVal });
-
   const mysqlSql = 'INSERT INTO carpetas (nombre, descripcion) VALUES (?, ?)';
   const mysqlResult = await executeMysqlQuery(mysqlSql, [nombreVal, descVal]);
 
-  return res.status(201).json({
-    message: 'Carpeta creada exitosamente',
-    carpeta: mysqlResult.success ? { id: mysqlResult.data.insertId, nombre: nombreVal, descripcion: descVal } : sqliteRecord,
-    motor: mysqlResult.success ? 'MySQL + SQLite' : 'SQLite Local'
-  });
+  if (mysqlResult.success) {
+    if (!process.env.VERCEL) { try { sqliteDb.createCarpeta({ nombre: nombreVal, descripcion: descVal }); } catch (e) {} }
+    return res.status(201).json({
+      message: 'Carpeta creada exitosamente',
+      carpeta: { id: mysqlResult.data.insertId, nombre: nombreVal, descripcion: descVal },
+      motor: 'MySQL'
+    });
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
+    const sqliteRecord = sqliteDb.createCarpeta({ nombre: nombreVal, descripcion: descVal });
+    return res.status(201).json({
+      message: 'Carpeta creada exitosamente en SQLite Local',
+      carpeta: sqliteRecord,
+      motor: 'SQLite Local'
+    });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
+  }
 });
 
 // Eliminar carpeta
@@ -84,9 +96,13 @@ app.delete('/api/carpetas/:id', async (req, res) => {
   await executeMysqlQuery('UPDATE ingresos SET carpeta_id = NULL WHERE carpeta_id = ?', [id]);
   const mysqlResult = await executeMysqlQuery('DELETE FROM carpetas WHERE id = ?', [id]);
 
-  sqliteDb.deleteCarpeta(id);
+  if (!process.env.VERCEL) { try { sqliteDb.deleteCarpeta(id); } catch (e) {} }
 
-  return res.json({ message: 'Carpeta eliminada exitosamente', id });
+  if (mysqlResult.success) {
+    return res.json({ message: 'Carpeta eliminada exitosamente', id });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
+  }
 });
 
 // -------------------------------------------------------------
@@ -126,13 +142,15 @@ app.get('/api/ingresos', async (req, res) => {
   const mysqlResult = await executeMysqlQuery(sql, params);
 
   let list = [];
-  let motorBaseDatos = 'SQLite (Local .db)';
+  let motorBaseDatos = 'MySQL (caja_db)';
 
   if (mysqlResult.success) {
     list = mysqlResult.data;
-    motorBaseDatos = 'MySQL (caja_db)';
-  } else {
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
     list = sqliteDb.getIngresos({ filtro, desde, hasta, carpeta_id });
+    motorBaseDatos = 'SQLite Local';
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error, ingresos: [] });
   }
 
   // Cálculos financieros
@@ -170,15 +188,14 @@ app.post('/api/ingresos', async (req, res) => {
   const formattedDate = fechaFinal.toISOString().slice(0, 19).replace('T', ' ');
   const carpetaIdVal = carpeta_id ? parseInt(carpeta_id, 10) : null;
 
-  // 1. Intentar guardar en MySQL
   const mysqlSql = 'INSERT INTO ingresos (monto, descripcion, categoria, fecha, carpeta_id) VALUES (?, ?, ?, ?, ?)';
   const mysqlResult = await executeMysqlQuery(mysqlSql, [montoNum, descFinal, catFinal, formattedDate, carpetaIdVal]);
 
   if (mysqlResult.success) {
-    try { sqliteDb.insertIngreso({ monto: montoNum, descripcion: descFinal, categoria: catFinal, fecha: formattedDate, carpeta_id: carpetaIdVal }); } catch (e) {}
+    if (!process.env.VERCEL) { try { sqliteDb.insertIngreso({ monto: montoNum, descripcion: descFinal, categoria: catFinal, fecha: formattedDate, carpeta_id: carpetaIdVal }); } catch (e) {} }
 
     return res.status(201).json({
-      message: 'Ingreso guardado exitosamente en tabla MySQL (caja_db)',
+      message: 'Ingreso guardado exitosamente en tabla MySQL',
       id: mysqlResult.data.insertId,
       monto: montoNum,
       descripcion: descFinal,
@@ -187,7 +204,7 @@ app.post('/api/ingresos', async (req, res) => {
       carpeta_id: carpetaIdVal,
       motor: 'MySQL'
     });
-  } else {
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
     const sqliteRecord = sqliteDb.insertIngreso({
       monto: montoNum,
       descripcion: descFinal,
@@ -201,6 +218,8 @@ app.post('/api/ingresos', async (req, res) => {
       ...sqliteRecord,
       motor: 'SQLite Local'
     });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
   }
 });
 
@@ -211,11 +230,13 @@ app.delete('/api/ingresos/:id', async (req, res) => {
   const mysqlResult = await executeMysqlQuery('DELETE FROM ingresos WHERE id = ?', [id]);
 
   if (mysqlResult.success) {
-    try { sqliteDb.deleteIngreso(id); } catch (e) {}
+    if (!process.env.VERCEL) { try { sqliteDb.deleteIngreso(id); } catch (e) {} }
     return res.json({ message: 'Registro eliminado de tabla MySQL', id });
-  } else {
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
     sqliteDb.deleteIngreso(id);
     return res.json({ message: 'Registro eliminado de tabla SQLite local', id });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
   }
 });
 
@@ -225,9 +246,11 @@ app.get('/api/perfil', async (req, res) => {
 
   if (mysqlResult.success && mysqlResult.data.length > 0) {
     return res.json({ success: true, perfil: mysqlResult.data[0], motor: 'MySQL' });
-  } else {
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
     const perfilSqlite = sqliteDb.getPerfil();
     return res.json({ success: true, perfil: perfilSqlite, motor: 'SQLite' });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
   }
 });
 
@@ -239,8 +262,6 @@ app.post('/api/perfil', async (req, res) => {
   const cargoVal = cargo && cargo.trim() !== '' ? cargo.trim() : 'Usuario Principal';
   const avatarVal = avatar_url || '';
 
-  const updatedSqlite = sqliteDb.updatePerfil({ nombre: nombreVal, cargo: cargoVal, avatar_url: avatarVal });
-
   const mysqlSql = `
     INSERT INTO perfil (id, nombre, cargo, avatar_url)
     VALUES (1, ?, ?, ?)
@@ -248,11 +269,23 @@ app.post('/api/perfil', async (req, res) => {
   `;
   const mysqlResult = await executeMysqlQuery(mysqlSql, [nombreVal, cargoVal, avatarVal]);
 
-  return res.json({
-    message: 'Perfil actualizado exitosamente en base de datos',
-    perfil: mysqlResult.success ? { id: 1, nombre: nombreVal, cargo: cargoVal, avatar_url: avatarVal } : updatedSqlite,
-    motor: mysqlResult.success ? 'MySQL + SQLite' : 'SQLite Local'
-  });
+  if (mysqlResult.success) {
+    if (!process.env.VERCEL) { try { sqliteDb.updatePerfil({ nombre: nombreVal, cargo: cargoVal, avatar_url: avatarVal }); } catch (e) {} }
+    return res.json({
+      message: 'Perfil actualizado exitosamente en MySQL',
+      perfil: { id: 1, nombre: nombreVal, cargo: cargoVal, avatar_url: avatarVal },
+      motor: 'MySQL'
+    });
+  } else if (!process.env.VERCEL && !process.env.MYSQL_URL) {
+    const updatedSqlite = sqliteDb.updatePerfil({ nombre: nombreVal, cargo: cargoVal, avatar_url: avatarVal });
+    return res.json({
+      message: 'Perfil actualizado en SQLite Local',
+      perfil: updatedSqlite,
+      motor: 'SQLite Local'
+    });
+  } else {
+    return res.status(500).json({ success: false, error: mysqlResult.error });
+  }
 });
 
 // 6. Estado del Servidor
