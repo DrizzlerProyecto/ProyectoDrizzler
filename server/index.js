@@ -19,6 +19,7 @@ async function executeMysqlQuery(query, params = []) {
     const [rows] = await pool.query(query, params);
     return { success: true, data: rows, isDb: true };
   } catch (err) {
+    console.error('❌ Error en MySQL:', err.message);
     return { success: false, error: err.message, isDb: false };
   }
 }
