@@ -356,10 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         mostrarVistaCarpetas();
       } else {
-        alert('No se pudo crear la carpeta.');
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || errData.message || 'No se pudo crear la carpeta.');
       }
     } catch (err) {
       console.error('Error creando carpeta:', err);
+      alert('Error de conexión al intentar crear la carpeta: ' + err.message);
     }
   });
 

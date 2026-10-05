@@ -9,37 +9,16 @@ const port = parseInt(process.env.MYSQLPORT || process.env.DB_PORT || '3306', 10
 
 const dbUrl = process.env.MYSQL_URL || process.env.MYSQLURL || process.env.DATABASE_URL;
 
-let dbConfig;
-if (dbUrl) {
-  try {
-    const parsedUrl = new URL(dbUrl);
-    dbConfig = {
-      host: parsedUrl.hostname,
-      user: parsedUrl.username,
-      password: decodeURIComponent(parsedUrl.password),
-      database: parsedUrl.pathname.replace(/^\//, '') || 'railway',
-      port: parseInt(parsedUrl.port || '3306', 10),
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      connectTimeout: 10000
-    };
-  } catch (e) {
-    dbConfig = dbUrl;
-  }
-} else {
-  dbConfig = {
-    host,
-    user,
-    password,
-    database: databaseName,
-    port,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    connectTimeout: 10000
-  };
-}
+const dbConfig = dbUrl || {
+  host,
+  user,
+  password,
+  database: databaseName,
+  port,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
 
 const pool = mysql.createPool(dbConfig);
 
