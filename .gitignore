@@ -1,0 +1,5 @@
+node_modules/
+.env
+db/caja.db
+.DS_Store
+*.log

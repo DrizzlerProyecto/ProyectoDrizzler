@@ -1,0 +1,18 @@
+{
+  "name": "cajas-soles-neon",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de cajas e ingresos en Soles (S/.) con cálculo del 5% y filtro por rango de fechas (Estilo Neón Cyberpunk)",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "migrate": "node scripts/sync_to_railway.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

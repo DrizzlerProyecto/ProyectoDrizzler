@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cajas & Ingresos en Soles S/. | Red Cyber-Lightning</title>
+  
+  <!-- Fuentes Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Estilos Red Neon & Black Lightning -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Fondo Negro Puro & Canvas de Líneas Fluidas Neón -->
+  <div class="bg-black-canvas"></div>
+  <canvas id="fluidCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header Principal (Sin íconos) -->
+    <header class="cyber-header">
+      <div class="brand">
+        <div class="brand-badge">S/.</div>
+        <div>
+          <h1 class="glitch-title">GESTIÓN DE <span class="neon-text-red">S/.</span></h1>
+        </div>
+      </div>
+
+      <div class="header-right-zone">
+        <!-- Widget de Perfil Integrado -->
+        <div class="user-profile-integrated">
+          <div class="user-info-text" id="headerUserInfo" title="Haz clic para cambiar de nombre">
+            <span class="user-name" id="headerUserName">Cargando...</span>
+          </div>
+          <div class="avatar-rect-box" id="headerAvatarBox" title="Haz clic para cambiar de foto">
+            <img id="headerAvatarImg" src="" alt="Foto Perfil" class="header-avatar-img hidden" />
+            <div id="headerAvatarFallback" class="header-avatar-fallback">U</div>
+            <div class="header-avatar-hover">
+              <span>Cambiar foto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- METRIC CARDS (BOXES CON NEÓN ROJO Y NEGRO) -->
+    <section class="metrics-grid">
+      <!-- Box 1: Total Bruto -->
+      <div class="metric-card card-red">
+        <div class="card-header">
+          <span>ACUMULADO BRUTO</span>
+          <span class="badge-percentage">100%</span>
+        </div>
+        <div class="amount-container">
+          <span class="currency">S/.</span>
+          <span class="amount" id="totalBruto">0.00</span>
+        </div>
+        <p class="card-footer-text">Suma total del período seleccionado</p>
+      </div>
+
+      <!-- Box 2: Deducción 5% -->
+      <div class="metric-card card-dark-red">
+        <div class="card-header">
+          <span>DEDUCCIÓN DEL 5%</span>
+          <span class="badge-percentage badge-minus">-5%</span>
+        </div>
+        <div class="amount-container">
+          <span class="currency">S/.</span>
+          <span class="amount" id="deduccion5">0.00</span>
+        </div>
+        <p class="card-footer-text">Monto deducido (-5%)</p>
+      </div>
+
+      <!-- Box 3: Total Neto Final -->
+      <div class="metric-card card-white-glow highlight-card">
+        <div class="card-header">
+          <span>MONTO NETO RESULTANTE</span>
+          <span class="badge-percentage badge-net">95% NETO</span>
+        </div>
+        <div class="amount-container">
+          <span class="currency">S/.</span>
+          <span class="amount" id="totalNeto">0.00</span>
+        </div>
+        <p class="card-footer-text">Resultado neto disponible</p>
+      </div>
+    </section>
+
+    <!-- CONTROLES Y FILTROS -->
+    <section class="controls-panel">
+      <div class="panel-header">
+        <h2>FILTROS DE TIEMPO</h2>
+        <span class="active-filter-indicator" id="filterIndicator">Período: <strong>Todo</strong></span>
+      </div>
+
+      <div class="filters-container">
+        <!-- Botones Rápidos -->
+        <div class="quick-filter-buttons">
+          <button class="btn-filter" data-filtro="semana">Semana</button>
+          <button class="btn-filter" data-filtro="mes">Mes</button>
+          <button class="btn-filter" data-filtro="anio">Año</button>
+          <button class="btn-filter active" data-filtro="todo">Todo</button>
+        </div>
+
+        <!-- Botones de Carpetas (A la izquierda inmediata de las Fechas) -->
+        <div class="folder-action-group">
+          <button type="button" class="btn-folder-action" id="openCrearCarpetaBtn" title="Crear una nueva carpeta">
+            Crear Nueva Carpeta
+          </button>
+          <button type="button" class="btn-folder-action btn-folder-secondary" id="openTodasCarpetasBtn" title="Ver todas las carpetas guardadas">
+            Todas las Carpetas
+          </button>
+        </div>
+
+        <!-- Rango de Fechas Personalizado -->
+        <form id="customRangeForm" class="range-picker-form">
+          <div class="input-group-date">
+            <label for="fechaDesde">Desde:</label>
+            <input type="date" id="fechaDesde" required />
+          </div>
+          <div class="input-group-date">
+            <label for="fechaHasta">Hasta:</label>
+            <input type="date" id="fechaHasta" required />
+          </div>
+          <button type="submit" class="btn-neon-action">
+            Aplicar Rango
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- MAIN GRID: FORMULARIO Y TABLA -->
+    <div class="main-grid">
+      <!-- Formulario para agregar dinero -->
+      <section class="form-card">
+        <h2>REGISTRAR INGRESO</h2>
+        <form id="ingresoForm" class="cyber-form">
+          <div class="form-field">
+            <label for="montoInput">Cantidad en Soles (S/.) *</label>
+            <div class="input-with-symbol">
+              <span class="symbol">S/.</span>
+              <input type="number" id="montoInput" step="0.01" min="0.01" placeholder="0.00" required autofocus />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="descripcionInput">Concepto / Nota (Opcional)</label>
+            <input type="text" id="descripcionInput" placeholder="Ej: Caja Mañana, Cobro Yape, Venta..." />
+          </div>
+
+          <div class="form-field">
+            <label for="carpetaSelect">Guardar en Carpeta (Opcional)</label>
+            <select id="carpetaSelect" class="select-cyber">
+              <option value="">-- Sin Carpeta (General) --</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="categoriaSelect">Método / Categoría</label>
+              <select id="categoriaSelect">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Yape">Yape</option>
+                <option value="Plin">Plin</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta / POS</option>
+                <option value="General" selected>General</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="fechaInput">Fecha y Hora</label>
+              <input type="datetime-local" id="fechaInput" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit-neon">
+            REGISTRAR CAJA
+          </button>
+        </form>
+      </section>
+
+      <!-- Tabla de Registros y Vista de Carpetas In-Place -->
+      <section class="table-card" id="mainDisplayCard">
+        <div class="table-header">
+          <h2 id="mainSectionTitle">HISTORIAL DE INGRESOS</h2>
+          <span class="badge-count" id="recordCount">0 registros</span>
+        </div>
+
+        <!-- Vista 1: Tabla de Ingresos -->
+        <div id="tableContainer" class="table-responsive">
+          <table class="cyber-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Método</th>
+                <th>Monto Bruto</th>
+                <th>-5% Deduc.</th>
+                <th>Monto Neto</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="ingresosTableBody">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+          
+          <div id="emptyState" class="empty-state">
+            <p>No hay ingresos registrados en el período seleccionado.</p>
+          </div>
+        </div>
+
+        <!-- Vista 2: Cuadrícula de Carpetas (Reemplaza a la tabla en el mismo lugar) -->
+        <div id="foldersContainer" class="inline-folders-container hidden">
+          <div id="todasCarpetasGrid" class="folders-grid">
+            <!-- Tarjetas de carpetas dinámicas -->
+          </div>
+          <div id="emptyCarpetasState" class="empty-state hidden">
+            <p>No tienes carpetas creadas aún. Haz clic en "Crear Nueva Carpeta" para comenzar.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="cyber-footer">
+      <p>Sistema de Gestión de Cajas en Soles S/. &bull; Edición Red & Black Lightning</p>
+    </footer>
+  </div>
+
+  <!-- MODAL DE PERFIL Y CAMBIO DE FOTO -->
+  <div class="modal-overlay" id="profileModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>MI PERFIL Y FOTO DE USUARIO</h3>
+        <button type="button" class="btn-close-modal" id="closeProfileModalBtn">&times;</button>
+      </div>
+      <form id="profileForm" class="profile-form">
+        <div class="avatar-upload-section">
+          <div class="avatar-preview-container" id="triggerFileSelect">
+            <img id="modalAvatarPreview" src="" alt="Previsualización" class="avatar-preview-img hidden" />
+            <div id="modalAvatarFallback" class="avatar-preview-fallback">U</div>
+            <div class="avatar-hover-overlay">
+              <span>Cambiar Foto</span>
+            </div>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" class="file-input-hidden" />
+          <button type="button" class="btn-select-photo" id="btnSelectPhoto">
+            Seleccionar Nueva Foto
+          </button>
+          <span class="photo-hint">Formatos soportados: JPG, PNG, WEBP. ¡Cámbiala todas las veces que quieras!</span>
+        </div>
+
+        <div class="form-group-cyber">
+          <label for="profileNameInput">Nombre o Pseudónimo:</label>
+          <input type="text" id="profileNameInput" placeholder="Ej: Administrador de Caja" required />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelProfileBtn">Cancelar</button>
+          <button type="submit" class="btn-primary-neon">Guardar Perfil</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR NUEVA CARPETA -->
+  <div class="modal-overlay" id="crearCarpetaModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>CREAR NUEVA CARPETA</h3>
+        <button type="button" class="btn-close-modal" id="closeCrearCarpetaModalBtn">&times;</button>
+      </div>
+      <form id="crearCarpetaForm" class="profile-form">
+        <div class="form-group-cyber">
+          <label for="nombreCarpetaInput">Nombre de la Carpeta *</label>
+          <input type="text" id="nombreCarpetaInput" placeholder="Ej: Caja Evento Octubre, Sucursal Centro..." required autofocus />
+        </div>
+        <div class="form-group-cyber">
+          <label for="descripcionCarpetaInput">Descripción / Nota (Opcional)</label>
+          <input type="text" id="descripcionCarpetaInput" placeholder="Ej: Registro de ingresos del evento especial" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelCrearCarpetaBtn">Cancelar</button>
+          <button type="submit" class="btn-primary-neon">Guardar Carpeta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
