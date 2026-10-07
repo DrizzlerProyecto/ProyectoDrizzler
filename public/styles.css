@@ -1327,4 +1327,294 @@ body {
   transition: opacity 0.3s ease;
 }
 
+/* ==========================================================================
+   DISEÑO RESPONSIVE Y ADAPTABILIDAD TOTAL PARA CELULARES Y TABLETS
+   ========================================================================== */
+
+/* --- TABLETS Y PANTALLAS MEDIANAS (hasta 768px) --- */
+@media (max-width: 768px) {
+  /* Layout general */
+  body {
+    padding-bottom: 24px;
+  }
+
+  .app-container {
+    padding: 12px 14px;
+  }
+
+  /* Header */
+  .cyber-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+  }
+
+  .brand {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .brand-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .glitch-title {
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-right-zone {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .user-profile-integrated {
+    width: 100%;
+    justify-content: space-between;
+    background: rgba(16, 11, 18, 0.6);
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(217, 38, 69, 0.2);
+  }
+
+  .user-name {
+    font-size: 1.25rem;
+    letter-spacing: 1.2px;
+  }
+
+  .avatar-rect-box {
+    width: 68px;
+    height: 85px;
+    border-radius: 6px;
+  }
+
+  .header-avatar-fallback {
+    font-size: 1.3rem;
+  }
+
+  /* Métricas */
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .metric-card {
+    padding: 16px 18px;
+  }
+
+  .amount {
+    font-size: 26px;
+  }
+
+  /* Panel de Filtros */
+  .controls-panel {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .quick-filter-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .btn-filter {
+    padding: 8px 4px;
+    font-size: 12px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .folder-action-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .btn-folder-action {
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px;
+  }
+
+  .range-picker-form {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .input-group-date {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .input-group-date input {
+    flex: 1;
+    max-width: 65%;
+  }
+
+  .btn-neon-action {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+  }
+
+  /* Main Grid y Formulario */
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .form-card, .table-card {
+    padding: 16px 14px;
+  }
+
+  .cyber-form input, .cyber-form select {
+    font-size: 16px; /* Evita zoom automático molesto en iOS Safari */
+  }
+
+  /* Tabla de ingresos en móvil */
+  .table-responsive {
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cyber-table th {
+    font-size: 10px;
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+
+  .cyber-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* Tarjetas de Carpetas */
+  .folder-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .folder-card-stats {
+    width: 100%;
+    justify-content: space-around;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .folder-stat-item {
+    font-size: 0.78rem;
+  }
+
+  .folder-stat-val {
+    font-size: 0.82rem;
+  }
+
+  .folder-card-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-open-folder, .btn-delete-folder {
+    flex: 1;
+    padding: 9px 8px;
+    text-align: center;
+  }
+
+  /* Modales */
+  .modal-card {
+    max-width: 95vw;
+    padding: 20px 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .avatar-preview-container {
+    width: 100%;
+    max-width: 240px;
+    height: 300px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .btn-secondary, .btn-primary-neon {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .header-title-zone {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* --- CELULARES PEQUEÑOS (hasta 480px) --- */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px 10px;
+  }
+
+  .glitch-title {
+    font-size: 16px;
+  }
+
+  .user-name {
+    font-size: 1.1rem;
+    letter-spacing: 0.8px;
+  }
+
+  .avatar-rect-box {
+    width: 56px;
+    height: 70px;
+  }
+
+  .amount {
+    font-size: 22px;
+  }
+
+  .quick-filter-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-header h3 {
+    font-size: 0.95rem;
+  }
+}
+
+
 
